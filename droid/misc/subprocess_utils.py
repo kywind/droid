@@ -5,7 +5,7 @@ import threading
 
 def run_terminal_command(command):
     process = subprocess.Popen(
-        command, stdout=subprocess.PIPE, stdin=subprocess.PIPE, shell=True, executable="/bin/bash", encoding="utf8"
+        command, stdout=None, stdin=subprocess.PIPE, shell=True, executable="/bin/bash", encoding="utf8"
     )
 
     return process

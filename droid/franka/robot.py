@@ -44,10 +44,23 @@ class FrankaRobot:
         self._gripper_process.kill()
 
     def update_command(self, command, action_space="cartesian_velocity", gripper_action_space=None, blocking=False):
-        action_dict = self.create_action_dict(command, action_space=action_space, gripper_action_space=gripper_action_space)
+        robot_state = self.get_robot_state()[0]
+        action_dict = self.create_action_dict(
+            command,
+            action_space=action_space,
+            gripper_action_space=gripper_action_space,
+            robot_state=robot_state
+        )
 
         self.update_joints(action_dict["joint_position"], velocity=False, blocking=blocking)
-        self.update_gripper(action_dict["gripper_position"], velocity=False, blocking=blocking)
+
+        # print(robot_state["gripper_position"], action_dict["gripper_position"])
+        if action_dict["gripper_position"] > 0.99:
+            self.grasp_gripper(blocking=blocking)
+        else:
+            # if robot_state["gripper_position"] > action_dict["gripper_position"] + 0.05:  # releasing gripper
+            #     self.stop_gripper(blocking=blocking)
+            self.update_gripper(action_dict["gripper_position"], velocity=False, blocking=blocking)
 
         return action_dict
 
@@ -120,7 +133,13 @@ class FrankaRobot:
             command = gripper_delta + self.get_gripper_position()
 
         command = float(np.clip(command, 0, 1))
-        self._gripper.goto(width=self._max_gripper_width * (1 - command), speed=0.05, force=0.1, blocking=blocking)
+        self._gripper.goto(width=self._max_gripper_width * (1 - command), speed=0.2, force=1.0, blocking=blocking)
+
+    def grasp_gripper(self, blocking=False):
+        self._gripper.grasp(speed=0.2, force=5.0, grasp_width=-0.2, epsilon_inner=0.1, epsilon_outer=0.9, blocking=blocking)
+
+    def stop_gripper(self, blocking=False):
+        self._gripper.stop(blocking=blocking)
 
     def add_noise_to_joints(self, original_joints, cartesian_noise):
         original_joints = torch.Tensor(original_joints)
