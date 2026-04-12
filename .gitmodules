@@ -1,7 +1,3 @@
-[submodule "droid/oculus_reader"]
-	path = droid/oculus_reader
-	url = git@github.com:rail-berkeley/oculus_reader.git
 [submodule "droid/fairo"]
 	path = droid/fairo
 	url = git@github.com:kywind/fairo.git
-	branch = fix-fairo
