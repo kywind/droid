@@ -57,9 +57,11 @@ class FrankaRobot:
         # print(robot_state["gripper_position"], action_dict["gripper_position"])
         if action_dict["gripper_position"] > 0.99:
             self.grasp_gripper(blocking=blocking)
+            self._grasp_active = True
         else:
-            # if robot_state["gripper_position"] > action_dict["gripper_position"] + 0.05:  # releasing gripper
-            #     self.stop_gripper(blocking=blocking)
+            if getattr(self, "_grasp_active", False):
+                self.stop_gripper(blocking=blocking)  # break force-hold so goto is accepted
+                self._grasp_active = False
             self.update_gripper(action_dict["gripper_position"], velocity=False, blocking=blocking)
 
         return action_dict
