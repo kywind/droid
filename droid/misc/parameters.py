@@ -2,8 +2,8 @@ import os
 from cv2 import aruco
 
 # Robot Params #
-nuc_ip = "192.168.0.18"
-robot_ip = "192.168.0.239"
+nuc_ip = "128.59.17.233"
+robot_ip = "128.59.17.200"
 laptop_ip = ""
 sudo_password = "robopil123"  # for the nuc
 robot_type = "fr3"  # 'panda' or 'fr3'
