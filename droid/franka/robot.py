@@ -1,3 +1,4 @@
+from droid.franka.hand_contract import DEFAULT_HAND_CONTRACT, send_aperture
 # ROBOT SPECIFIC IMPORTS
 import os
 import time
@@ -54,17 +55,16 @@ class FrankaRobot:
 
         self.update_joints(action_dict["joint_position"], velocity=False, blocking=blocking)
 
-        # print(robot_state["gripper_position"], action_dict["gripper_position"])
-        if action_dict["gripper_position"] > 0.99:
-            self.grasp_gripper(blocking=blocking)
-            self._grasp_active = True
-        else:
-            if getattr(self, "_grasp_active", False):
-                self.stop_gripper(blocking=blocking)  # break force-hold so goto is accepted
-                self._grasp_active = False
-            self.update_gripper(action_dict["gripper_position"], velocity=False, blocking=blocking)
+        self._grasp_active = send_aperture(
+            self._gripper, action_dict["gripper_position"],
+            was_grasp=getattr(self, "_grasp_active", False), blocking=blocking,
+        )
+        action_dict["gripper_control_contract"] = self.get_gripper_control_contract()
 
         return action_dict
+
+    def get_gripper_control_contract(self):
+        return DEFAULT_HAND_CONTRACT.metadata()
 
     def update_pose(self, command, velocity=False, blocking=False):
         if blocking:
